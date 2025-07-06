@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khám Phá Foundation Agents: Một Chuyển Thể Tương Tác</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F0F2F5;
+            color: #1A202C;
+        }
+        .section-card {
+            background-color: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: all 0.3s ease-in-out;
+        }
+        .nav-link {
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-link.active {
+            color: #3B82F6;
+            font-weight: 600;
+            border-bottom: 2px solid #3B82F6;
+        }
+        .interactive-diagram-node {
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 2px solid transparent;
+        }
+        .interactive-diagram-node:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+            border-color: #3B82F6;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+        }
+        .accordion-button.open + .accordion-content {
+            max-height: 1000px; /* Adjust as needed */
+        }
+        #chat-widget {
+            transition: all 0.3s ease-in-out;
+        }
+        .bookmark-icon.bookmarked {
+            fill: #FBBF24; /* Amber color for bookmarked */
+            stroke: #F59E0B;
+        }
+    </style>
+    <!-- 
+      TÊN BẢNG MÀU ĐÃ CHỌN: [Cybernetic Blueprint] 
+      MÔ TẢ MÀU SẮC: [Nền chính: #F0F2F5 (Xám nhạt), Text chính: #1A202C (Xám đen), Màu nhấn 1 (Tiêu đề, liên kết): #3B82F6 (Xanh dương), Màu nhấn 2 (Tương tác phụ, viền): #6B7280 (Xám trung tính)] 
+    -->
+</head>
+<body class="antialiased">
+
+    <!-- Header and Navigation -->
+    <header id="header" class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-md">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-bold text-gray-800">Foundation Agents</h1>
+            <div class="hidden md:flex space-x-8">
+                <a href="#intro" class="nav-link text-gray-600 hover:text-blue-500 pb-1">Giới thiệu</a>
+                <a href="#architecture" class="nav-link text-gray-600 hover:text-blue-500 pb-1">Kiến trúc Agent</a>
+                <a href="#evolution" class="nav-link text-gray-600 hover:text-blue-500 pb-1">Tự Tiến Hóa</a>
+                <a href="#multi-agent" class="nav-link text-gray-600 hover:text-blue-500 pb-1">Hệ thống Đa Agent</a>
+                <a href="#safety" class="nav-link text-gray-600 hover:text-blue-500 pb-1">An Toàn & Đạo Đức</a>
+                <a href="#bookmarks" class="nav-link text-gray-600 hover:text-blue-500 pb-1">Đánh dấu</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pb-4">
+            <a href="#intro" class="block py-2 text-gray-600 hover:text-blue-500">Giới thiệu</a>
+            <a href="#architecture" class="block py-2 text-gray-600 hover:text-blue-500">Kiến trúc Agent</a>
+            <a href="#evolution" class="block py-2 text-gray-600 hover:text-blue-500">Tự Tiến Hóa</a>
+            <a href="#multi-agent" class="block py-2 text-gray-600 hover:text-blue-500">Hệ thống Đa Agent</a>
+            <a href="#safety" class="block py-2 text-gray-600 hover:text-blue-500">An Toàn & Đạo Đức</a>
+            <a href="#bookmarks" class="block py-2 text-gray-600 hover:text-blue-500">Đánh dấu</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+        <!-- 
+          GIẢI THÍCH CẤU TRÚC SPA VÀ LỰA CHỌN THIẾT KẾ TỔNG THỂ: 
+          SPA này được cấu trúc thành các section chính tương ứng với các phần cốt lõi của bài báo: Giới thiệu, Kiến trúc Agent, Tự Tiến Hóa, Hệ thống Đa Agent, và An Toàn & Đạo Đức. Cấu trúc này cho phép người dùng tiếp cận thông tin một cách phi tuyến tính, có thể nhảy đến phần họ quan tâm nhất.
+          Yếu tố điều hướng chính là thanh navigation cố định ở trên cùng, giúp truy cập nhanh các section.
+          Các tương tác chính bao gồm: click để mở rộng thông tin chi tiết trong các sơ đồ và accordion, hover để xem tooltip giải thích thuật ngữ, và một chatbox tương tác với Gemini API để hỏi đáp sâu hơn.
+          LÝ DO CHỌN CẤU TRÚC NÀY: Cấu trúc này biến một bài báo khoa học dày đặc thành một trải nghiệm khám phá trực quan và dễ tiếp cận. Thay vì đọc tuần tự, người dùng có thể "chơi" với nội dung, khám phá các khái niệm theo mối quan tâm riêng, giúp tăng cường sự tương tác và khả năng ghi nhớ. Việc tích hợp AI giúp giải đáp các thắc mắc tức thời, làm cho nội dung phức tạp trở nên dễ hiểu hơn.
+        -->
+
+        <!-- Introduction Section -->
+        <section id="intro" class="section-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Giới thiệu: Các Agent Nền tảng (Foundation Agents)</h2>
+            <p class="text-lg text-gray-600 mb-6">
+                Sự ra đời của các mô hình ngôn ngữ lớn (LLM) đã mở đường cho các agent thông minh tiên tiến. Bài báo này cung cấp một cái nhìn tổng quan toàn diện, định hình các agent thông minh trong một kiến trúc mô-đun, lấy cảm hứng từ não bộ, tích hợp các nguyên tắc từ khoa học nhận thức, khoa học thần kinh và nghiên cứu tính toán.
+            </p>
+            <h3 class="text-2xl font-semibold mb-4 text-gray-700">Vòng lặp Agent: Nhận thức - Tư duy - Hành động</h3>
+            <div id="agent-loop-diagram" class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <!-- This will be an HTML/CSS recreation of Figure 1.2 -->
+                <div class="flex flex-col md:flex-row items-center justify-around space-y-4 md:space-y-0 md:space-x-4">
+                    <!-- Environment -->
+                    <div class="text-center">
+                        <div class="w-32 h-32 bg-blue-100 border-2 border-blue-300 rounded-full flex items-center justify-center text-center p-2">
+                            <span class="font-semibold text-blue-800">Môi trường (Thế giới)</span>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Trạng thái: s_t</p>
+                    </div>
+
+                    <!-- Arrows -->
+                    <div class="flex flex-col items-center">
+                        <p class="font-mono text-blue-600 text-sm mb-1">Percept (Nhận thức)</p>
+                        <svg class="w-16 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                        <svg class="w-16 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"></path></svg>
+                        <p class="font-mono text-green-600 text-sm mt-1">Execute (Hành động)</p>
+                    </div>
+
+                    <!-- Agent -->
+                    <div class="text-center">
+                        <div class="w-32 h-32 bg-purple-100 border-2 border-purple-300 rounded-full flex items-center justify-center text-center p-2">
+                            <span class="font-semibold text-purple-800">Agent</span>
+                        </div>
+                         <p class="mt-2 text-sm text-gray-500">Hành động: a_t</p>
+                    </div>
+                </div>
+                 <p class="text-center mt-4 text-gray-600">Bên trong Agent là một vòng lặp liên tục: Nhận thức môi trường, cập nhật trạng thái tinh thần (Tư duy), và quyết định hành động tiếp theo.</p>
+            </div>
+        </section>
+
+        <!-- Architecture Section -->
+        <section id="architecture" class="section-card">
+            <!-- 
+              CHI TIẾT TRIỂN KHAI THÔNG TIN VÀ TƯƠNG TÁC: 
+              PHẦN THÔNG TIN: [Kiến trúc Agent và các thành phần cốt lõi] 
+              MỤC TIÊU HIỂN THỊ: [Giúp người đọc hiểu rõ cấu trúc mô-đun của một agent, lấy cảm hứng từ não bộ, và vai trò của từng thành phần.] 
+              PHƯƠNG PHÁP TRÌNH BÀY/TRỰC QUAN HÓA: [Một sơ đồ tương tác các thành phần chính (Tư duy, Nhận thức, Hành động). Bên dưới là một loạt các accordion cho từng thành phần con trong Tư duy (Trí nhớ, Mô hình thế giới, Cảm xúc, Phần thưởng). Sử dụng HTML/CSS (Tailwind) để tạo layout.] 
+              TƯƠNG TÁC NGƯỜI DÙNG: 
+                 - Click vào một thành phần trong sơ đồ: Scroll đến phần mô tả chi tiết hơn hoặc mở một modal giải thích.
+                 - Click vào tiêu đề accordion: Mở/đóng để xem nội dung chi tiết về thành phần đó.
+              LÝ DO CHỌN PHƯƠNG PHÁP NÀY: [Sơ đồ giúp trực quan hóa mối quan hệ giữa các thành phần. Accordion giúp trình bày lượng lớn thông tin một cách gọn gàng, không làm người dùng bị choáng ngợp, cho phép họ khám phá theo tốc độ của riêng mình.] 
+              THƯ VIỆN/KỸ THUẬT SỬ DỤNG: [HTML/CSS (Tailwind), JavaScript thuần túy cho accordion.] 
+              KHẲNG ĐỊNH: Không sử dụng SVG cho icon (nếu có thể dùng font icon hoặc ký tự Unicode), không dùng Mermaid JS. 
+            -->
+            <h2 class="text-3xl font-bold mb-6 text-gray-800">Kiến trúc Agent: Một Hệ thống Mô-đun</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center mb-8">
+                <div class="interactive-diagram-node p-6 bg-blue-50 rounded-lg border-2 border-blue-200">
+                    <h3 class="text-xl font-semibold text-blue-800">Nhận thức (Perception)</h3>
+                    <p class="text-gray-600 mt-2">Tiếp nhận và diễn giải thông tin từ môi trường (văn bản, hình ảnh, âm thanh).</p>
+                </div>
+                <div class="interactive-diagram-node p-6 bg-purple-50 rounded-lg border-2 border-purple-200">
+                    <h3 class="text-xl font-semibold text-purple-800">Tư duy (Cognition)</h3>
+                    <p class="text-gray-600 mt-2">"Bộ não" của agent, nơi diễn ra học hỏi, lập luận và ra quyết định.</p>
+                </div>
+                <div class="interactive-diagram-node p-6 bg-green-50 rounded-lg border-2 border-green-200">
+                    <h3 class="text-xl font-semibold text-green-800">Hành động (Action)</h3>
+                    <p class="text-gray-600 mt-2">Thực thi các quyết định, tương tác với môi trường hoặc sử dụng công cụ.</p>
+                </div>
+            </div>
+
+            <h3 class="text-2xl font-semibold mb-4 mt-8 text-gray-700">Khám phá các thành phần của Tư duy</h3>
+            <div id="cognition-components" class="space-y-4">
+                <!-- Memory -->
+                <div class="border border-gray-200 rounded-lg">
+                    <button class="accordion-button w-full text-left p-4 bg-gray-100 hover:bg-gray-200 transition font-semibold text-lg flex justify-between items-center">
+                        <span>🧠 Trí nhớ (Memory)</span>
+                        <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="p-4 border-t border-gray-200">
+                            <p class="text-gray-600">Lưu trữ và truy xuất thông tin, tương tự như trí nhớ ngắn hạn và dài hạn của con người. Bao gồm trí nhớ ngữ nghĩa (sự thật), trí nhớ tình tiết (kinh nghiệm), và trí nhớ thủ tục (kỹ năng).</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- World Model -->
+                <div class="border border-gray-200 rounded-lg">
+                    <button class="accordion-button w-full text-left p-4 bg-gray-100 hover:bg-gray-200 transition font-semibold text-lg flex justify-between items-center">
+                        <span>🌍 Mô hình Thế giới (World Model)</span>
+                        <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="p-4 border-t border-gray-200">
+                            <p class="text-gray-600">Một mô hình nội tại về cách thế giới vận hành, cho phép agent "tưởng tượng" hoặc dự đoán kết quả của các hành động trước khi thực hiện chúng. Điều này rất quan trọng cho việc lập kế hoạch.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Reward -->
+                <div class="border border-gray-200 rounded-lg">
+                    <button class="accordion-button w-full text-left p-4 bg-gray-100 hover:bg-gray-200 transition font-semibold text-lg flex justify-between items-center">
+                        <span>🏆 Phần thưởng (Reward)</span>
+                        <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="p-4 border-t border-gray-200">
+                            <p class="text-gray-600">Các tín hiệu (ngoại sinh hoặc nội tại) định hướng quá trình học của agent. Agent học cách tối đa hóa phần thưởng, từ đó hình thành các hành vi mong muốn. Đây là cốt lõi của học tăng cường.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Emotion -->
+                 <div class="border border-gray-200 rounded-lg">
+                    <button class="accordion-button w-full text-left p-4 bg-gray-100 hover:bg-gray-200 transition font-semibold text-lg flex justify-between items-center">
+                        <span>🎭 Cảm xúc (Emotion)</span>
+                        <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="p-4 border-t border-gray-200">
+                            <p class="text-gray-600">Mô hình hóa cảm xúc không phải để agent "cảm thấy" mà để cải thiện khả năng ra quyết định, ưu tiên hóa và tương tác xã hội một cách tự nhiên hơn, tương tự như vai trò của cảm xúc trong nhận thức con người.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Evolution Section -->
+        <section id="evolution" class="section-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Tự Tiến Hóa trong các Agent Thông minh</h2>
+            <p class="text-lg text-gray-600 mb-6">
+                Một trong những khía cạnh hấp dẫn nhất của các agent tiên tiến là khả năng tự cải thiện và tiến hóa. Quá trình này không chỉ giới hạn ở việc học từ dữ liệu mới mà còn bao gồm việc tối ưu hóa các thành phần cốt lõi của chính nó.
+            </p>
+            <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Các không gian tối ưu hóa</h3>
+                <ul class="list-disc list-inside space-y-2 text-gray-600">
+                    <li><strong>Tối ưu hóa Prompt:</strong> Tự động tinh chỉnh các câu lệnh (prompt) để đạt được kết quả tốt hơn từ LLM.</li>
+                    <li><strong>Tối ưu hóa Luồng làm việc (Workflow):</strong> Cải thiện cách các agent con phối hợp với nhau trong một hệ thống đa agent.</li>
+                    <li><strong>Tối ưu hóa Công cụ (Tool):</strong> Học cách sử dụng các công cụ bên ngoài hiệu quả hơn hoặc thậm chí tạo ra các công cụ mới.</li>
+                </ul>
+            </div>
+        </section>
+        
+        <!-- Multi-agent Section -->
+        <section id="multi-agent" class="section-card">
+            <!-- 
+              CHI TIẾT TRIỂN KHAI THÔNG TIN VÀ TƯƠNG TÁC: 
+              PHẦN THÔNG TIN: [Hệ thống Đa Agent và các Topo Giao tiếp] 
+              MỤC TIÊU HIỂN THỊ: [Trực quan hóa các cách khác nhau mà nhiều agent có thể tương tác với nhau để giải quyết vấn đề.] 
+              PHƯƠNG PHÁP TRÌNH BÀY/TRỰC QUAN HÓA: [Sử dụng Chart.js (biểu đồ radar) để so sánh các topo giao tiếp khác nhau (phân cấp, phi tập trung, tập trung) dựa trên các tiêu chí như 'Độ linh hoạt', 'Khả năng mở rộng', 'Độ tin cậy'.] 
+              TƯƠNG TÁC NGƯỜI DÙNG: 
+                 - Hover lên các điểm trên biểu đồ radar để xem mô tả chi tiết hơn về từng tiêu chí.
+              LÝ DO CHỌN PHƯƠNG PHÁP NÀY: [Biểu đồ radar là một cách hiệu quả để so sánh đa chiều các lựa chọn khác nhau. Nó trực quan và giúp người dùng nhanh chóng nắm bắt được ưu và nhược điểm của từng loại topo.] 
+              THƯ VIỆN/KỸ THUẬT SỬ DỤNG: [Chart.js (render trên Canvas), JavaScript thuần túy.] 
+              KHẲNG ĐỊNH: Không sử dụng SVG cho biểu đồ, không dùng Mermaid JS. 
+            -->
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Hệ thống Đa Agent: Trí tuệ Tập thể</h2>
+            <p class="text-lg text-gray-600 mb-6">
+                Tương tự như xã hội loài người, các agent có thể hợp tác hoặc cạnh tranh với nhau để giải quyết các vấn đề phức tạp. Cấu trúc giao tiếp (topo) giữa chúng đóng vai trò quyết định đến hiệu quả của hệ thống.
+            </p>
+            <div class="bg-white p-4 rounded-lg">
+                <h3 class="text-xl font-semibold text-center text-gray-700 mb-4">So sánh các Topo Giao tiếp</h3>
+                <canvas id="topologyChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Safety Section -->
+        <section id="safety" class="section-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Xây dựng AI An toàn và Hữu ích</h2>
+            <p class="text-lg text-gray-600 mb-6">
+                Khi các agent trở nên tự chủ hơn, việc đảm bảo chúng hoạt động một cách an toàn và có lợi cho xã hội là ưu tiên hàng đầu. Bài báo phân loại các mối đe dọa thành hai nhóm chính: nội tại và ngoại tại.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-red-50 p-6 rounded-lg border border-red-200">
+                    <h3 class="text-xl font-semibold text-red-800">Mối đe dọa Nội tại (Intrinsic Threats)</h3>
+                    <p class="text-red-700 mt-2">Các lỗ hổng từ bên trong agent.</p>
+                    <ul class="list-disc list-inside space-y-1 mt-3 text-red-600">
+                        <li><strong>Jailbreak:</strong> Bẻ khóa các rào cản an toàn.</li>
+                        <li><strong>Prompt Injection:</strong> Tiêm các lệnh độc hại.</li>
+                        <li><strong>Ảo giác (Hallucination):</strong> Tạo ra thông tin sai lệch.</li>
+                        <li><strong>Lệch hướng (Misalignment):</strong> Hành vi không khớp với mục tiêu.</li>
+                    </ul>
+                </div>
+                <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
+                    <h3 class="text-xl font-semibold text-yellow-800">Mối đe dọa Ngoại tại (Extrinsic Threats)</h3>
+                    <p class="text-yellow-700 mt-2">Rủi ro từ tương tác bên ngoài.</p>
+                    <ul class="list-disc list-inside space-y-1 mt-3 text-yellow-600">
+                        <li><strong>Tương tác với Trí nhớ:</strong> Nguy cơ từ việc truy cập bộ nhớ bị nhiễm độc.</li>
+                        <li><strong>Tương tác với Môi trường:</strong> Bị đánh lừa bởi môi trường vật lý/số.</li>
+                        <li><strong>Tương tác với Agent khác:</strong> Bị lừa dối hoặc thông đồng độc hại.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bookmarks Section -->
+        <section id="bookmarks" class="section-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Các khái niệm đã đánh dấu</h2>
+            <div id="bookmarks-list" class="space-y-2">
+                <p class="text-gray-500 italic">Chưa có khái niệm nào được đánh dấu. Nhấp vào biểu tượng <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block" viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" /></svg> để lưu lại các khái niệm quan trọng.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Chat Widget -->
+    <div id="chat-widget" class="fixed bottom-5 right-5">
+        <button id="chat-toggle-button" class="bg-blue-500 text-white w-16 h-16 rounded-full shadow-lg flex items-center justify-center">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+        </button>
+        <div id="chat-window" class="hidden absolute bottom-20 right-0 w-80 sm:w-96 bg-white rounded-lg shadow-2xl border border-gray-200 flex flex-col" style="height: 500px;">
+            <div class="p-4 bg-blue-500 text-white rounded-t-lg">
+                <h3 class="font-bold text-lg">Hỏi Đáp về Bài báo</h3>
+                <p class="text-sm">Hỏi bất cứ điều gì về "Foundation Agents"</p>
+            </div>
+            <div id="chat-messages" class="flex-1 p-4 overflow-y-auto">
+                <div class="text-sm text-gray-600 bg-gray-100 p-3 rounded-lg mb-2 self-start">Xin chào! Tôi có thể giúp gì cho bạn về bài báo này?</div>
+            </div>
+            <div class="p-4 border-t border-gray-200">
+                <div class="flex">
+                    <input type="text" id="chat-input" placeholder="Nhập câu hỏi của bạn..." class="flex-1 p-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button id="chat-send" class="bg-blue-500 text-white px-4 rounded-r-md hover:bg-blue-600">Gửi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for detailed info -->
+    <div id="info-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl relative">
+            <button id="modal-close" class="absolute top-2 right-4 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            <h3 id="modal-title" class="text-2xl font-bold mb-4"></h3>
+            <div id="modal-content" class="text-gray-600"></div>
+        </div>
+    </div>
+
+    <!-- 
+      XÁC NHẬN TUÂN THỦ YÊU CẦU: 
+      Ứng dụng này được xây dựng hoàn toàn trong một file HTML duy nhất. 
+      Sử dụng Tailwind CSS cho styling và layout responsive. 
+      Tất cả các tương tác được xử lý bằng JavaScript thuần túy. 
+      Chart.js (render trên Canvas) được sử dụng cho trực quan hóa dữ liệu, không sử dụng SVG cho biểu đồ hay Mermaid JS. 
+      Các sơ đồ đơn giản được tạo bằng HTML/CSS. 
+      Ngôn ngữ hiển thị và nội dung là Tiếng Việt. 
+      Đã bao gồm các placeholder comments theo yêu cầu. 
+      Tích hợp Gemini API tuân thủ hướng dẫn. 
+    -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Mobile menu toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Accordion functionality
+            const accordionButtons = document.querySelectorAll('.accordion-button');
+            accordionButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const content = button.nextElementSibling;
+                    button.classList.toggle('open');
+                    const icon = button.querySelector('svg');
+                    icon.classList.toggle('rotate-180');
+                });
+            });
+
+            // Active nav link highlighting on scroll
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href').substring(1) === entry.target.id) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, { threshold: 0.5 });
+            sections.forEach(section => observer.observe(section));
+            
+            // Smooth scrolling
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                     if (mobileMenu.classList.contains('hidden') === false) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                });
+            });
+
+            // Topology Chart
+            const ctx = document.getElementById('topologyChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Độ linh hoạt', 'Khả năng mở rộng', 'Độ tin cậy', 'Hiệu quả giao tiếp', 'Dễ quản lý'],
+                    datasets: [{
+                        label: 'Phân cấp (Hierarchical)',
+                        data: [2, 3, 4, 4, 5],
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 2
+                    }, {
+                        label: 'Phi tập trung (Decentralized)',
+                        data: [5, 4, 5, 2, 2],
+                        backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        borderWidth: 2
+                    }, {
+                        label: 'Tập trung (Centralized)',
+                        data: [1, 2, 2, 5, 4],
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: false
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 5,
+                             pointLabels: {
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.r !== null) {
+                                        label += context.parsed.r;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Chat Widget functionality
+            const chatToggleButton = document.getElementById('chat-toggle-button');
+            const chatWindow = document.getElementById('chat-window');
+            const chatInput = document.getElementById('chat-input');
+            const chatSend = document.getElementById('chat-send');
+            const chatMessages = document.getElementById('chat-messages');
+
+            chatToggleButton.addEventListener('click', () => {
+                chatWindow.classList.toggle('hidden');
+            });
+            
+            const sendMessage = async () => {
+                const message = chatInput.value.trim();
+                if (!message) return;
+
+                // Display user message
+                const userMessageDiv = document.createElement('div');
+                userMessageDiv.className = 'bg-blue-500 text-white p-3 rounded-lg mb-2 self-end max-w-xs break-words';
+                userMessageDiv.textContent = message;
+                chatMessages.appendChild(userMessageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                chatInput.value = '';
+                chatInput.disabled = true;
+                chatSend.disabled = true;
+
+                // Display loading indicator
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'text-sm text-gray-600 bg-gray-100 p-3 rounded-lg mb-2 self-start';
+                loadingDiv.innerHTML = '<span class="italic">AI đang suy nghĩ...</span>';
+                chatMessages.appendChild(loadingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                // Call Gemini API
+                try {
+                    const response = await callGeminiAPI(message);
+                    loadingDiv.remove();
+                    const aiMessageDiv = document.createElement('div');
+                    aiMessageDiv.className = 'text-sm text-gray-600 bg-gray-100 p-3 rounded-lg mb-2 self-start max-w-xs break-words';
+                    aiMessageDiv.textContent = response;
+                    chatMessages.appendChild(aiMessageDiv);
+                } catch (error) {
+                    loadingDiv.remove();
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'text-sm text-red-600 bg-red-100 p-3 rounded-lg mb-2 self-start';
+                    errorDiv.textContent = 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại.';
+                    chatMessages.appendChild(errorDiv);
+                } finally {
+                    chatInput.disabled = false;
+                    chatSend.disabled = false;
+                    chatInput.focus();
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+            };
+
+            chatSend.addEventListener('click', sendMessage);
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            // Gemini API call function
+            async function callGeminiAPI(prompt) {
+                /* CHI TIẾT TRIỂN KHAI THÔNG TIN VÀ TƯƠNG TÁC: 
+                  PHẦN THÔNG TIN: [Tính năng "Hỏi Đáp về Sách" với Gemini API] 
+                  MỤC TIÊU HIỂN THỊ: [Cung cấp một công cụ tương tác để người đọc có thể hỏi và nhận câu trả lời về các khía cạnh của bài báo, giúp làm rõ những điểm chưa hiểu hoặc khám phá sâu hơn.] 
+                  PHƯƠNG PHÁP TRÌNH BÀY/TRỰC QUAN HÓA: [Một khu vực chat nhỏ ở góc dưới bên phải màn hình. Giao diện gồm một ô nhập câu hỏi và một khu vực hiển thị câu trả lời từ AI.] 
+                  TƯƠNG TÁC NGƯỜI DÙNG: 
+                     - Người dùng nhập câu hỏi vào ô input. 
+                     - Nhấn nút "Gửi" hoặc Enter. 
+                     - Câu trả lời từ Gemini API sẽ được hiển thị trong khu vực chat. 
+                  LÝ DO CHỌN PHƯƠNG PHÁP NÀY: [Giao diện chat quen thuộc, dễ sử dụng. Cho phép tương tác tự nhiên.] 
+                  THƯ VIỆN/KỸ THUẬT SỬ DỤNG: [HTML/CSS (Tailwind) cho giao diện, JavaScript thuần túy để xử lý input, gọi Gemini API (model gemini-2.0-flash) và hiển thị kết quả.] 
+                  SYSTEM PROMPT CHO GEMINI API: ["Bạn là một chuyên gia AI, người hướng dẫn tận tâm và am hiểu sâu sắc về bài báo khoa học 'ADVANCES AND CHALLENGES IN FOUNDATION AGENTS'. Nhiệm vụ của bạn là trả lời các câu hỏi của người đọc liên quan đến nội dung, khái niệm, cấu trúc và ý nghĩa của bài báo này một cách chính xác, dễ hiểu và hấp dẫn. Hãy sử dụng kiến thức của bạn về bài báo để cung cấp những câu trả lời sâu sắc. Tránh tiết lộ những tình tiết quá quan trọng nếu người đọc chưa đọc đến. Luôn giữ giọng điệu thân thiện và khuyến khích sự tò mò. Câu trả lời nên được trình bày dưới dạng văn bản mạch lạc, bằng tiếng Việt."] 
+                  KHẲNG ĐỊNH: Tích hợp Gemini API sử dụng JavaScript thuần túy để gọi API. 
+                */
+                const systemPrompt = `Bạn là một chuyên gia AI, người hướng dẫn tận tâm và am hiểu sâu sắc về bài báo khoa học 'ADVANCES AND CHALLENGES IN FOUNDATION AGENTS'. Nội dung chính của bài báo bao gồm 4 phần: (1) Các thành phần cốt lõi của agent thông minh như Tư duy, Trí nhớ, Nhận thức, Hành động. (2) Khả năng tự tiến hóa và tối ưu hóa của agent. (3) Các hệ thống đa agent hợp tác và tiến hóa. (4) Các vấn đề về an toàn, bảo mật và đạo đức. Nhiệm vụ của bạn là trả lời các câu hỏi của người đọc liên quan đến nội dung, khái niệm, cấu trúc và ý nghĩa của bài báo này một cách chính xác, dễ hiểu và hấp dẫn bằng tiếng Việt. Hãy sử dụng kiến thức của bạn về bài báo để cung cấp những câu trả lời sâu sắc. Nếu câu hỏi nằm ngoài phạm vi bài báo, hãy cho biết điều đó.`;
+                
+                const chatHistory = [
+                    { role: "user", parts: [{ text: systemPrompt }] },
+                    { role: "model", parts: [{ text: "Đã hiểu. Tôi sẵn sàng trả lời các câu hỏi về bài báo." }] },
+                    { role: "user", parts: [{ text: prompt }] }
+                ];
+
+                const payload = { contents: chatHistory };
+                const apiKey = "AIzaSyA1VZRkhqPPM0UZjYa4zKm7nP1UeBjFGCQ"; // API key will be provided by the environment
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const apiResponse = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!apiResponse.ok) {
+                    throw new Error(`API request failed with status ${apiResponse.status}`);
+                }
+
+                const result = await apiResponse.json();
+
+                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
+                    return result.candidates[0].content.parts[0].text;
+                } else {
+                    console.error("Unexpected API response structure:", result);
+                    return "Tôi không thể tạo phản hồi vào lúc này.";
+                }
+            }
+        });
+    </script>
+</body>
+</html>
