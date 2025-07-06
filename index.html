@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -55,6 +56,36 @@
         .bookmark-icon.bookmarked {
             fill: #FBBF24; /* Amber color for bookmarked */
             stroke: #F59E0B;
+        }
+        /* Markdown styles for chat */
+        .prose {
+            color: #374151;
+        }
+        .prose ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .prose li {
+            margin-bottom: 0.25rem;
+        }
+        .prose p {
+            margin-bottom: 0.75rem;
+        }
+        .prose p:last-child {
+            margin-bottom: 0;
+        }
+        .prose strong {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .prose code {
+            background-color: #e5e7eb;
+            padding: 0.1rem 0.3rem;
+            border-radius: 0.25rem;
+            font-family: monospace;
+            font-size: 0.9em;
         }
     </style>
     <!-- 
@@ -253,7 +284,7 @@
             <p class="text-lg text-gray-600 mb-6">
                 Tương tự như xã hội loài người, các agent có thể hợp tác hoặc cạnh tranh với nhau để giải quyết các vấn đề phức tạp. Cấu trúc giao tiếp (topo) giữa chúng đóng vai trò quyết định đến hiệu quả của hệ thống.
             </p>
-            <div class="bg-white p-4 rounded-lg">
+            <div class="bg-white p-4 rounded-lg relative h-96 md:h-[450px]">
                 <h3 class="text-xl font-semibold text-center text-gray-700 mb-4">So sánh các Topo Giao tiếp</h3>
                 <canvas id="topologyChart"></canvas>
             </div>
@@ -309,7 +340,7 @@
                 <p class="text-sm">Hỏi bất cứ điều gì về "Foundation Agents"</p>
             </div>
             <div id="chat-messages" class="flex-1 p-4 overflow-y-auto">
-                <div class="text-sm text-gray-600 bg-gray-100 p-3 rounded-lg mb-2 self-start">Xin chào! Tôi có thể giúp gì cho bạn về bài báo này?</div>
+                <div class="text-sm text-gray-600 bg-gray-100 p-3 rounded-lg mb-2 self-start max-w-xs break-words">Xin chào! Tôi có thể giúp gì cho bạn về bài báo này?</div>
             </div>
             <div class="p-4 border-t border-gray-200">
                 <div class="flex">
@@ -489,8 +520,8 @@
                     const response = await callGeminiAPI(message);
                     loadingDiv.remove();
                     const aiMessageDiv = document.createElement('div');
-                    aiMessageDiv.className = 'text-sm text-gray-600 bg-gray-100 p-3 rounded-lg mb-2 self-start max-w-xs break-words';
-                    aiMessageDiv.textContent = response;
+                    aiMessageDiv.className = 'prose prose-sm max-w-none text-sm text-gray-600 bg-gray-100 p-3 rounded-lg mb-2 self-start break-words';
+                    aiMessageDiv.innerHTML = marked.parse(response); // Use marked.parse() here
                     chatMessages.appendChild(aiMessageDiv);
                 } catch (error) {
                     loadingDiv.remove();
@@ -525,14 +556,14 @@
                      - Câu trả lời từ Gemini API sẽ được hiển thị trong khu vực chat. 
                   LÝ DO CHỌN PHƯƠNG PHÁP NÀY: [Giao diện chat quen thuộc, dễ sử dụng. Cho phép tương tác tự nhiên.] 
                   THƯ VIỆN/KỸ THUẬT SỬ DỤNG: [HTML/CSS (Tailwind) cho giao diện, JavaScript thuần túy để xử lý input, gọi Gemini API (model gemini-2.0-flash) và hiển thị kết quả.] 
-                  SYSTEM PROMPT CHO GEMINI API: ["Bạn là một chuyên gia AI, người hướng dẫn tận tâm và am hiểu sâu sắc về bài báo khoa học 'ADVANCES AND CHALLENGES IN FOUNDATION AGENTS'. Nhiệm vụ của bạn là trả lời các câu hỏi của người đọc liên quan đến nội dung, khái niệm, cấu trúc và ý nghĩa của bài báo này một cách chính xác, dễ hiểu và hấp dẫn. Hãy sử dụng kiến thức của bạn về bài báo để cung cấp những câu trả lời sâu sắc. Tránh tiết lộ những tình tiết quá quan trọng nếu người đọc chưa đọc đến. Luôn giữ giọng điệu thân thiện và khuyến khích sự tò mò. Câu trả lời nên được trình bày dưới dạng văn bản mạch lạc, bằng tiếng Việt."] 
+                  SYSTEM PROMPT CHO GEMINI API: ["Bạn là một chuyên gia AI, người hướng dẫn tận tâm và am hiểu sâu sắc về bài báo khoa học 'ADVANCES AND CHALLENGES IN FOUNDATION AGENTS'. Nhiệm vụ của bạn là trả lời các câu hỏi của người đọc liên quan đến nội dung, khái niệm, cấu trúc và ý nghĩa của bài báo này một cách chính xác, dễ hiểu và hấp dẫn. Hãy sử dụng kiến thức của bạn về bài báo để cung cấp những câu trả lời sâu sắc. Tránh tiết lộ những tình tiết quá quan trọng nếu người đọc chưa đọc đến. Luôn giữ giọng điệu thân thiện và khuyến khích sự tò mò. Câu trả lời nên được trình bày dưới dạng văn bản mạch lạc, bằng tiếng Việt. Sử dụng định dạng Markdown (ví dụ: **in đậm**, *in nghiêng*, danh sách) để cấu trúc câu trả lời."] 
                   KHẲNG ĐỊNH: Tích hợp Gemini API sử dụng JavaScript thuần túy để gọi API. 
                 */
-                const systemPrompt = `Bạn là một chuyên gia AI, người hướng dẫn tận tâm và am hiểu sâu sắc về bài báo khoa học 'ADVANCES AND CHALLENGES IN FOUNDATION AGENTS'. Nội dung chính của bài báo bao gồm 4 phần: (1) Các thành phần cốt lõi của agent thông minh như Tư duy, Trí nhớ, Nhận thức, Hành động. (2) Khả năng tự tiến hóa và tối ưu hóa của agent. (3) Các hệ thống đa agent hợp tác và tiến hóa. (4) Các vấn đề về an toàn, bảo mật và đạo đức. Nhiệm vụ của bạn là trả lời các câu hỏi của người đọc liên quan đến nội dung, khái niệm, cấu trúc và ý nghĩa của bài báo này một cách chính xác, dễ hiểu và hấp dẫn bằng tiếng Việt. Hãy sử dụng kiến thức của bạn về bài báo để cung cấp những câu trả lời sâu sắc. Nếu câu hỏi nằm ngoài phạm vi bài báo, hãy cho biết điều đó.`;
+                const systemPrompt = `Bạn là một chuyên gia AI, người hướng dẫn tận tâm và am hiểu sâu sắc về bài báo khoa học 'ADVANCES AND CHALLENGES IN FOUNDATION AGENTS'. Nội dung chính của bài báo bao gồm 4 phần: (1) Các thành phần cốt lõi của agent thông minh như Tư duy, Trí nhớ, Nhận thức, Hành động. (2) Khả năng tự tiến hóa và tối ưu hóa của agent. (3) Các hệ thống đa agent hợp tác và tiến hóa. (4) Các vấn đề về an toàn, bảo mật và đạo đức. Nhiệm vụ của bạn là trả lời các câu hỏi của người đọc liên quan đến nội dung, khái niệm, cấu trúc và ý nghĩa của bài báo này một cách chính xác, dễ hiểu và hấp dẫn bằng tiếng Việt. Hãy sử dụng kiến thức của bạn về bài báo để cung cấp những câu trả lời sâu sắc. Nếu câu hỏi nằm ngoài phạm vi bài báo, hãy cho biết điều đó. Sử dụng định dạng Markdown (ví dụ: **in đậm**, *in nghiêng*, danh sách có dấu đầu dòng) để cấu trúc câu trả lời cho dễ đọc.`;
                 
                 const chatHistory = [
                     { role: "user", parts: [{ text: systemPrompt }] },
-                    { role: "model", parts: [{ text: "Đã hiểu. Tôi sẵn sàng trả lời các câu hỏi về bài báo." }] },
+                    { role: "model", parts: [{ text: "Đã hiểu. Tôi sẵn sàng trả lời các câu hỏi về bài báo và sẽ sử dụng Markdown để định dạng câu trả lời." }] },
                     { role: "user", parts: [{ text: prompt }] }
                 ];
 
